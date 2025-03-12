@@ -17,6 +17,7 @@ const client = twilio(accountSid, authToken);
 app.post('/send-otp', async (req, res) => {
     try {
         const { phoneNumber } = req.body;
+        console.log("phoneNumber: ", phoneNumber)
 
         if (!phoneNumber) {
             return res.status(400).json({ success: false, message: "Phone number is required" });
@@ -37,6 +38,7 @@ app.post('/send-otp', async (req, res) => {
 app.post('/verify-otp', async (req, res) => {
     try {
         const { phoneNumber, code } = req.body;
+        console.log("phoneNumber: ", phoneNumber, "code: ", code)
 
         if (!phoneNumber || !code) {
             return res.status(400).json({ success: false, message: "Phone number and OTP code are required" });
