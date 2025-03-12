@@ -1,0 +1,19 @@
+# Server Configuration
+PORT=5000
+
+# Database Configuration
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=yourpassword
+DB_NAME=mydatabase
+
+# Twilio API Keys
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+TWILIO_SERVICE_SID=your_twilio_service_sid
+
+# JWT Secret Key (For authentication)
+JWT_SECRET=mysecretkey123
+
+# API Keys
+API_KEY=your_api_key
