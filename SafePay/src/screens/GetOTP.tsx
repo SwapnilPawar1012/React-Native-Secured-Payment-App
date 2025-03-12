@@ -11,19 +11,24 @@ import axios from 'axios';
 import {useAppContext} from '../context/AppContext';
 
 const GetOTP = ({navigation}: {navigation: any}) => {
-  const {phoneNumberGlobal,setPhoneNumberGlobal} = useAppContext();
+  const {phoneNumberGlobal, setPhoneNumberGlobal} = useAppContext();
+
+  console.log('AppContext value:', phoneNumberGlobal);
 
   const [error, setError] = useState<string>('');
 
   // Get OTP
   const HandleGetOTP = async () => {
-    if (phoneNumberGlobal.length !== 10) {
+    console.log('phone global: ', phoneNumberGlobal);
+    if (!phoneNumberGlobal || phoneNumberGlobal.length !== 10) {
       setError('Invalid Mobile Number! Please enter a valid mobile number.');
       return;
     }
+
     try {
-      const response = await axios.post('http://localhost:5000/send-otp', {
-        phoneNumberGlobal,
+      // Use 10.0.2.2 Instead of localhost (For Android Emulator)
+      const response = await axios.post('http://10.0.2.2:5000/send-otp', {
+        phoneNumber: phoneNumberGlobal,
       });
       console.log(response);
       if (response.data.success === true) {
@@ -33,7 +38,7 @@ const GetOTP = ({navigation}: {navigation: any}) => {
       }
     } catch (error) {
       console.log('Error in sending OTP', error);
-      setError('Something went wrong! Please try again later.');
+      setError('Error: Something went wrong! Please try again later.');
     }
   };
 
@@ -54,7 +59,7 @@ const GetOTP = ({navigation}: {navigation: any}) => {
             <Text style={[styles.label]}>Enter Mobile Number</Text>
             <TextInput
               style={styles.input}
-              value={phoneNumberGlobal}
+              value={phoneNumberGlobal || ''}
               onChangeText={setPhoneNumberGlobal}
               focusable={true}
               onFocus={() => setError('')}
@@ -63,11 +68,18 @@ const GetOTP = ({navigation}: {navigation: any}) => {
             />
           </View>
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          <Pressable onPress={HandleGetOTP} style={{marginTop: 70}}>
-            <View style={styles.buttonBox}>
-              <Text style={styles.buttonText}>GET OTP</Text>
-            </View>
-          </Pressable>
+          <View style={{marginTop: 70}}>
+            <Pressable
+              onPress={HandleGetOTP}
+              style={({pressed}) => [
+                {backgroundColor: pressed ? '#90caf9' : '#64b5f6', padding: 10},
+                styles.buttonBox,
+              ]}>
+              <View>
+                <Text style={styles.buttonText}>GET OTP</Text>
+              </View>
+            </Pressable>
+          </View>
         </View>
       </>
     </View>
@@ -122,7 +134,7 @@ const styles = StyleSheet.create({
     bottom: 80,
   },
   buttonBox: {
-    backgroundColor: '#64b5f6',
+    // backgroundColor: '#64b5f6',
     padding: 16,
     borderRadius: 8,
   },

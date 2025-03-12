@@ -1,48 +1,69 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useAppContext } from "./AppContext";
 
 // create context
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+    const { phoneNumberGlobal } = useAppContext();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState('');
 
-    // Check if user is authenticated
-    useEffect(() => {
-        const checkAuth = async () => {
+    // Function to check authentication status when app starts
+    const checkAuth = async () => {
+        try {
             const token = await AsyncStorage.getItem('authSafePay');
             const phone = await AsyncStorage.getItem('userSafePay');
-            if (token && phone) {
-                if (token === 'true') {
-                    setIsAuthenticated(true);
-                    setUser(phone);
-                } else {
-                    setIsAuthenticated(false);
-                    setUser('')
-                }
+            console.log("Auth Check: Token ->", token, "Phone ->", phone);
+            if (token === 'true' && phone) {
+                setIsAuthenticated(true);
+                setUser(phone);
             } else {
                 setIsAuthenticated(false);
-                setUser('')
+                setUser('');
             }
+        } catch (error) {
+            console.log("Error checking auth:", error);
         }
+    };
+
+    useEffect(() => {
         checkAuth();
-    }, [])
+    }, []);  // Runs once when component mounts
 
     // Function to login (set token and user)
-    const login = async () => {
-        await AsyncStorage.setItem('authSafePay', 'true');
-        await AsyncStorage.setItem('userSafePay', '1234567890');
-        setIsAuthenticated(true);
-        setUser('1234565345');
-    }
+    const login = async (userNo) => {
+        console.log("Logging in with phone number:", userNo); // Debugging
+
+        if (!userNo) {
+            console.log("Phone number is empty or undefined!");
+            return;
+        }
+
+        try {
+            await AsyncStorage.setItem('authSafePay', 'true');
+            await AsyncStorage.setItem('userSafePay', userNo);
+            setIsAuthenticated(true);
+            setUser(userNo);
+            console.log("User logged in successfully!");
+        } catch (error) {
+            console.log("Error in login:", error);
+        }
+    };
 
     // Function to logout (remove token and user)
     const logout = async () => {
-        await AsyncStorage.removeItem('authSafePay');
-        await AsyncStorage.removeItem('userSafePay');
-        setIsAuthenticated(false);
-        setUser("")
+        // AsyncStorage.clear().then(() => console.log("Cleared AsyncStorage!"));
+        try {
+            await AsyncStorage.removeItem('authSafePay');
+            await AsyncStorage.removeItem('userSafePay');
+            setIsAuthenticated(false);
+            setUser('');
+            console.log("User logged out!");
+        } catch (error) {
+            console.log("Error in logout:", error);
+        }
     }
 
     return (

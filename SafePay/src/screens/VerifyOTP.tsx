@@ -10,12 +10,14 @@ import {
 import React, {useState} from 'react';
 import axios from 'axios';
 import {useAppContext} from '../context/AppContext';
+import {useAuthContext} from '../context/AuthContext';
 
 const VerifyOTP = ({navigation}: {navigation: any}) => {
-  const {phoneNumberGlobal, setPhoneNumberGlobal} = useAppContext();
+  const {login} = useAuthContext();
+  const {phoneNumberGlobal} = useAppContext();
 
   const [error, setError] = useState<string>('');
-  const [otp, setOTP] = useState('');
+  const [code, setCode] = useState('');
 
   // Get OTP
   const HandleResendOTP = async () => {
@@ -28,13 +30,14 @@ const VerifyOTP = ({navigation}: {navigation: any}) => {
       return;
     }
     try {
-      const response = await axios.post('http://localhost:5000/send-otp', {
-        phoneNumberGlobal,
+      const response = await axios.post('http://10.0.2.2:5000/send-otp', {
+        phoneNumber: phoneNumberGlobal,
       });
       console.log(response);
       if (response.data.success === true) {
-        navigation.navigate('Home');
+        console.log('OTP sent successfully');
       } else {
+        console.log('Error in sending OTP');
       }
     } catch (error) {
       console.log('Error in sending OTP', error);
@@ -49,20 +52,23 @@ const VerifyOTP = ({navigation}: {navigation: any}) => {
       navigation.navigate('GetOTP'); // , { userPhone: phoneNumber }
       return;
     }
-    if (otp.length !== 6) {
+    if (code.length !== 6) {
       setError('Invalid OTP! Please try again.');
       return;
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/verify-otp', {
-        phoneNumberGlobal,
-        otp,
+      const response = await axios.post('http://10.0.2.2:5000/verify-otp', {
+        phoneNumber: phoneNumberGlobal,
+        code,
       });
 
       console.log(response);
       if (response.data.success === true) {
-        navigation.navigate('Home');
+        login(phoneNumberGlobal);
+        setTimeout(() => {
+          navigation.navigate('Home');
+        }, 500);
       } else {
         setError('Invalid OTP! Please try again.');
       }
@@ -88,8 +94,8 @@ const VerifyOTP = ({navigation}: {navigation: any}) => {
             <Text style={[styles.label]}>Enter OTP</Text>
             <TextInput
               style={styles.input}
-              value={otp}
-              onChangeText={setOTP}
+              value={code}
+              onChangeText={setCode}
               focusable={true}
               onFocus={() => setError('')}
               maxLength={6}
@@ -113,8 +119,13 @@ const VerifyOTP = ({navigation}: {navigation: any}) => {
               </View>
             </Pressable>
           </View>
-          <Pressable onPress={HandleVerifyOTP}>
-            <View style={styles.buttonBox}>
+          <Pressable
+            onPress={HandleVerifyOTP}
+            style={({pressed}) => [
+              {backgroundColor: pressed ? '#90caf9' : '#64b5f6', padding: 10},
+              styles.buttonBox,
+            ]}>
+            <View>
               <Text style={styles.buttonText}>Verify OTP</Text>
             </View>
           </Pressable>
