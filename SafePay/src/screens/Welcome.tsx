@@ -13,7 +13,7 @@ const Welcome = ({navigation}: {navigation: any}) => {
         style={styles.image}
       />
       <View>
-        <TouchableOpacity onPress={() => navigation.navigate('OTPAuth')}>
+        <TouchableOpacity onPress={() => navigation.navigate('GetOTP')}>
           <View style={styles.buttonBox}>
             <Text style={styles.buttonText}>Get Started</Text>
           </View>
