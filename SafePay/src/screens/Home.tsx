@@ -1,10 +1,11 @@
 import {Button, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import {useAuthContext} from '../context/AuthContext';
-import {useAppContext} from '../context/AppContext';
+import {useAppLockContext} from '../context/AppLockContext';
 
 const Home = ({navigation}: {navigation: any}) => {
   const {user, logout} = useAuthContext();
+  const {unlock} = useAppLockContext();
 
   const HandleLogout = () => {
     logout();
@@ -15,7 +16,12 @@ const Home = ({navigation}: {navigation: any}) => {
     <View style={styles.container}>
       <Text>Home</Text>
       <Text>{user}</Text>
-      <Button title="Logout" onPress={HandleLogout} />
+      <Button
+        title="Settings"
+        onPress={() => navigation.navigate('Settings')}
+      />
+      <Button title="Unlock" onPress={unlock} />
+      <Button title="Logout" onPress={HandleLogout} disabled />
     </View>
   );
 };

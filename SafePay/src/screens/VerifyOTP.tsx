@@ -19,7 +19,7 @@ const VerifyOTP = ({navigation}: {navigation: any}) => {
   const [error, setError] = useState<string>('');
   const [code, setCode] = useState('');
 
-  // Get OTP
+  // Get OTP use 10.0.2.2 for Android Emulator and IPv4 Address for physical device
   const HandleResendOTP = async () => {
     if (phoneNumberGlobal.length !== 10) {
       Alert.alert(
@@ -45,7 +45,7 @@ const VerifyOTP = ({navigation}: {navigation: any}) => {
     }
   };
 
-  // Verify OTP
+  // Verify OTP use 10.0.2.2 for Android Emulator and IPv4 Address for physical device
   const HandleVerifyOTP = async () => {
     if (phoneNumberGlobal.length !== 10) {
       setError('Invalid Mobile Number! Please try again.');

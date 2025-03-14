@@ -26,7 +26,7 @@ const GetOTP = ({navigation}: {navigation: any}) => {
     }
 
     try {
-      // Use 10.0.2.2 Instead of localhost (For Android Emulator)
+      // ipconfig: use 10.0.2.2 for Android Emulator and IPv4 Address for physical device
       const response = await axios.post('http://10.0.2.2:5000/send-otp', {
         phoneNumber: phoneNumberGlobal,
       });

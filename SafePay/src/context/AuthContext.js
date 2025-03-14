@@ -1,14 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useAppContext } from "./AppContext";
+import { useAppLockContext } from "./AppLockContext";
 
 // create context
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const { phoneNumberGlobal } = useAppContext();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState('');
+
+    const { checkLock } = useAppLockContext();
 
     // Function to check authentication status when app starts
     const checkAuth = async () => {
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }) => {
             if (token === 'true' && phone) {
                 setIsAuthenticated(true);
                 setUser(phone);
+                checkLock();
             } else {
                 setIsAuthenticated(false);
                 setUser('');
