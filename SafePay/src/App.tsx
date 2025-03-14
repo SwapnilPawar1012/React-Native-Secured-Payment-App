@@ -10,6 +10,9 @@ import Loading from './components/Loading';
 import Settings from './screens/Settings';
 import {useAppLockContext} from './context/AppLockContext';
 import AppLock from './screens/AppLock';
+import {StatusBar} from 'react-native';
+import ComingSoon from './components/ComingSoon';
+import Notifications from './screens/Notifications';
 
 export type RootParamList = {
   Welcome: undefined;
@@ -18,6 +21,8 @@ export type RootParamList = {
   AppLock: undefined;
   Home: undefined;
   Settings: undefined;
+  Notifications: undefined;
+  ComingSoon: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootParamList>();
@@ -39,6 +44,11 @@ const App = () => {
 
   return (
     <NavigationContainer>
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent
+      />
       <Stack.Navigator
         initialRouteName={
           isAuthenticated ? (isLocked ? 'AppLock' : 'Home') : 'Welcome'
@@ -52,6 +62,8 @@ const App = () => {
         <Stack.Screen name="AppLock" component={AppLock} />
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Settings" component={Settings} />
+        <Stack.Screen name="Notifications" component={Notifications} />
+        <Stack.Screen name="ComingSoon" component={ComingSoon} />
       </Stack.Navigator>
     </NavigationContainer>
   );
