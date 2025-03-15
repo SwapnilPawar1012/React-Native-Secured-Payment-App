@@ -2,14 +2,16 @@ import {Alert, Linking, NativeModules, Platform} from 'react-native';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import {useAuthContext} from '../context/AuthContext';
 import {useAppLockContext} from '../context/AppLockContext';
+import {useEffect, useState} from 'react';
 
 const {isLocked, lock, unlock} = useAppLockContext();
 const {logout} = useAuthContext();
 
+const [locked, setLocked] = useState(false);
+
 const setupBiometrics = async () => {
   if (Platform.OS === 'android') {
     Linking.openSettings(); // Opens the general settings screen
-
     try {
       NativeModules.BiometricSetup.openBiometricEnroll();
     } catch (error) {
@@ -26,7 +28,9 @@ const setupBiometrics = async () => {
 
 const handleAppLockToggle = async () => {
   if (isLocked) {
+    console.log('unlocked');
     unlock();
+    setLocked(false);
   } else {
     console.log('Checking biometics availability.');
     const rnBiometrics = new ReactNativeBiometrics({
@@ -37,6 +41,7 @@ const handleAppLockToggle = async () => {
 
     if (available) {
       lock();
+      setLocked(true);
     } else {
       console.log('Biometrics not available. Redirecting to setup.');
       setupBiometrics(); // Directly guide user to biometric setup
@@ -48,6 +53,12 @@ const HandleLogout = (navigation: any) => {
   logout();
   navigation.replace('GetOTP');
 };
+
+useEffect(() => {
+  if (isLocked) {
+    setLocked(true);
+  }
+}, []);
 
 export const settingButtons = (navigation: any) => [
   {
@@ -88,7 +99,7 @@ export const settingButtons = (navigation: any) => [
   {
     id: 6,
     type: 'icon',
-    name: isLocked ? 'unlock' : 'lock',
+    name: 'lock',
     title: 'Lock app',
     press: () => {
       handleAppLockToggle();

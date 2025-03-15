@@ -18,11 +18,21 @@ const Settings = ({navigation}: {navigation: any}) => {
             onPress={setting.press}
             style={styles.card}
             key={setting.id}>
-            <FontAwesome name={setting.name} size={28} style={styles.icon} />
+            <FontAwesome
+              name={
+                setting.name === 'lock'
+                  ? !isLocked
+                    ? 'unlock'
+                    : 'lock'
+                  : setting.name
+              }
+              size={28}
+              style={styles.icon}
+            />
             <Text style={styles.text}>{setting.title}</Text>
-            {setting.id === 6 ? (
+            {setting.name === 'lock' ? (
               <Text style={styles.buttonInfo}>
-                {isLocked ? 'disable' : 'enable'}
+                {!isLocked ? 'disabled' : 'enabled'}
               </Text>
             ) : null}
           </Pressable>

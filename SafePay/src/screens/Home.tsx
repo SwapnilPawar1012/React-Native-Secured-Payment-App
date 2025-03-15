@@ -52,7 +52,7 @@ const Home = ({navigation}: {navigation: any}) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 50,
+    marginTop: 40,
     marginHorizontal: 18,
   },
   seeMoreButton: {

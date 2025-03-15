@@ -20,9 +20,8 @@ const styles = StyleSheet.create({
   adImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
+    resizeMode: 'stretch',
     borderRadius: 10,
-    opacity: .7
   }
 });
 
