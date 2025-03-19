@@ -1,16 +1,17 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useState } from "react";
 
 // create context
 const AppContext = createContext({
     phoneNumberGlobal: '',
-    setPhoneNumberGlobal: () => {},
+    setPhoneNumberGlobal: () => { },
 });
 
 export const AppProvider = ({ children }) => {
     const [phoneNumberGlobal, setPhoneNumberGlobal] = useState('');
 
     return (
-        <AppContext.Provider value={{ phoneNumberGlobal, setPhoneNumberGlobal }}>
+        <AppContext.Provider value={{ phoneNumberGlobal, setPhoneNumberGlobal, }}>
             {children}
         </AppContext.Provider>
     )

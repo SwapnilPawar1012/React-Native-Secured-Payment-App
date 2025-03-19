@@ -13,6 +13,9 @@ import AppLock from './screens/AppLock';
 import {StatusBar} from 'react-native';
 import ComingSoon from './components/ComingSoon';
 import Notifications from './screens/Notifications';
+import AdvancePaymentLock from './screens/payment/AdvancePaymentLock';
+import PaymentPanel from './screens/payment/PaymentPanel';
+import AdvanceProtection from './screens/payment/AdvanceProtection';
 
 export type RootParamList = {
   Welcome: undefined;
@@ -22,6 +25,9 @@ export type RootParamList = {
   Home: undefined;
   Settings: undefined;
   Notifications: undefined;
+  AdvancePaymentLock: undefined;
+  AdvanceProtection: undefined;
+  PaymentPanel: undefined;
   ComingSoon: undefined;
 };
 
@@ -35,7 +41,7 @@ const App = () => {
   useEffect(() => {
     setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+    }, 100);
   }, [isAuthenticated]);
 
   if (isLoading) {
@@ -51,7 +57,11 @@ const App = () => {
       />
       <Stack.Navigator
         initialRouteName={
-          isAuthenticated ? (isLocked ? 'AppLock' : 'Home') : 'Welcome'
+          isAuthenticated
+            ? isLocked
+              ? 'AppLock'
+              : 'Home' // Home AdvancePaymentLock
+            : 'Welcome'
         }
         screenOptions={{
           headerShown: false,
@@ -63,6 +73,18 @@ const App = () => {
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Settings" component={Settings} />
         <Stack.Screen name="Notifications" component={Notifications} />
+        <Stack.Screen
+          name="AdvancePaymentLock"
+          component={AdvancePaymentLock}
+        />
+        <Stack.Screen
+          name="AdvanceProtection"
+          component={AdvanceProtection}
+        />
+        <Stack.Screen
+          name="PaymentPanel"
+          component={PaymentPanel}
+        />
         <Stack.Screen name="ComingSoon" component={ComingSoon} />
       </Stack.Navigator>
     </NavigationContainer>

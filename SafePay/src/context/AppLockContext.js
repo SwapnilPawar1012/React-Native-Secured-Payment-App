@@ -34,11 +34,7 @@ export const AppLockProvider = ({ children }) => {
         try {
             const lock = await AsyncStorage.getItem('SafePayLock');
             console.log("Lock status:", lock);
-            if (lock === 'true') {
-                setIsLocked(true);
-            } else {
-                setIsLocked(false);
-            }
+            setIsLocked(lock === 'true');
         } catch (error) {
             console.log("Error checking lock:", error);
         }

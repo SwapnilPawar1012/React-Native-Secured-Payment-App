@@ -1,7 +1,5 @@
 import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import React, {useState} from 'react';
-import {useAuthContext} from '../context/AuthContext';
-import {useAppLockContext} from '../context/AppLockContext';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Header from '../components/Header';
 import {paymentMethods} from '../data/paymentMethods';
@@ -13,7 +11,12 @@ const Home = ({navigation}: {navigation: any}) => {
   return (
     <View style={styles.container}>
       <Header navigation={navigation} />
-      <AdPanel />
+      <Pressable
+        onPress={() => {
+          navigation.navigate('AdvancePaymentLock');
+        }}>
+        <AdPanel />
+      </Pressable>
       <View>
         {limit === 10 ? (
           <Pressable style={styles.seeMoreButton} onPress={() => setLimit(4)}>

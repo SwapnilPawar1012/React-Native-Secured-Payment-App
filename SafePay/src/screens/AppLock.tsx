@@ -1,4 +1,4 @@
-import {Button, StyleSheet, Text, View} from 'react-native';
+import {Alert, Button, StyleSheet, Text, View} from 'react-native';
 import React, {useEffect} from 'react';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import {useAppLockContext} from '../context/AppLockContext';
@@ -18,18 +18,18 @@ const AppLock = ({navigation}: {navigation: any}) => {
       // Authenticate using biometrics
       await rnBiometrics
         .simplePrompt({
-          promptMessage: 'Authenticate using biometrics', // Authenticate to unlock the app
+          promptMessage: 'Unlock to use SafePay', // Authenticate to unlock the app
         })
         .then(result => {
           if (result.success) {
             console.log('Biometric authentication successful');
             setLockedAuth(true);
-            navigation.navigate('Home');
+            navigation.replace('Home');
           }
         })
         .catch(() => console.log('Biometric Authentication failed!'));
     } else {
-      console.log('Biometric authentication not available.');
+      Alert.alert('Biometric Authentication Not Available.');
     }
   };
 
@@ -39,12 +39,10 @@ const AppLock = ({navigation}: {navigation: any}) => {
 
   return (
     <View style={styles.container}>
-      {lockedAuth ? (
-        <Text>Welcome!</Text>
-      ) : (
+      {lockedAuth ? null : (
         <>
           <Text>Please authenticate to continue...</Text>
-          <Button title="Retry Authentication" onPress={checkBiometricAuth} />
+          <Button title="Unlock" onPress={checkBiometricAuth} />
         </>
       )}
     </View>

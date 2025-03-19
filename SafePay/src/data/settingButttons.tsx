@@ -2,12 +2,9 @@ import {Alert, Linking, NativeModules, Platform} from 'react-native';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import {useAuthContext} from '../context/AuthContext';
 import {useAppLockContext} from '../context/AppLockContext';
-import {useEffect, useState} from 'react';
 
 const {isLocked, lock, unlock} = useAppLockContext();
 const {logout} = useAuthContext();
-
-const [locked, setLocked] = useState(false);
 
 const setupBiometrics = async () => {
   if (Platform.OS === 'android') {
@@ -30,7 +27,6 @@ const handleAppLockToggle = async () => {
   if (isLocked) {
     console.log('unlocked');
     unlock();
-    setLocked(false);
   } else {
     console.log('Checking biometics availability.');
     const rnBiometrics = new ReactNativeBiometrics({
@@ -41,7 +37,6 @@ const handleAppLockToggle = async () => {
 
     if (available) {
       lock();
-      setLocked(true);
     } else {
       console.log('Biometrics not available. Redirecting to setup.');
       setupBiometrics(); // Directly guide user to biometric setup
@@ -53,12 +48,6 @@ const HandleLogout = (navigation: any) => {
   logout();
   navigation.replace('GetOTP');
 };
-
-useEffect(() => {
-  if (isLocked) {
-    setLocked(true);
-  }
-}, []);
 
 export const settingButtons = (navigation: any) => [
   {
@@ -77,27 +66,34 @@ export const settingButtons = (navigation: any) => [
   },
   {
     id: 3,
+    type: 'image',
+    name: require('../assets/advance-lock.png'),
+    title: 'Advance Payment Protection',
+    press: () => navigation.navigate('AdvancePaymentLock'),
+  },
+  {
+    id: 4,
     type: 'icon',
     name: 'shield',
     title: 'Privacy & security',
     press: () => navigation.navigate('ComingSoon'),
   },
   {
-    id: 4,
+    id: 5,
     type: 'icon',
     name: 'info-circle',
     title: 'About',
     press: () => navigation.navigate('ComingSoon'),
   },
   {
-    id: 5,
+    id: 6,
     type: 'icon',
     name: 'question-circle',
     title: 'Help & feedback',
     press: () => navigation.navigate('ComingSoon'),
   },
   {
-    id: 6,
+    id: 7,
     type: 'icon',
     name: 'lock',
     title: 'Lock app',
@@ -106,7 +102,7 @@ export const settingButtons = (navigation: any) => [
     },
   },
   {
-    id: 7,
+    id: 8,
     type: 'icon',
     name: 'power-off',
     title: 'Sign out',

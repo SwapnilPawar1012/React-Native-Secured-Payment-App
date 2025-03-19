@@ -1,4 +1,4 @@
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import {useAppLockContext} from '../context/AppLockContext';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -18,17 +18,21 @@ const Settings = ({navigation}: {navigation: any}) => {
             onPress={setting.press}
             style={styles.card}
             key={setting.id}>
-            <FontAwesome
-              name={
-                setting.name === 'lock'
-                  ? !isLocked
-                    ? 'unlock'
-                    : 'lock'
-                  : setting.name
-              }
-              size={28}
-              style={styles.icon}
-            />
+            {setting.type === 'image' ? (
+              <Image source={setting.name} style={{width: 30, height: 34}} />
+            ) : (
+              <FontAwesome
+                name={
+                  setting.name === 'lock'
+                    ? !isLocked
+                      ? 'unlock'
+                      : 'lock'
+                    : setting.name
+                }
+                size={28}
+                style={styles.icon}
+              />
+            )}
             <Text style={styles.text}>{setting.title}</Text>
             {setting.name === 'lock' ? (
               <Text style={styles.buttonInfo}>

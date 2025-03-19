@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useAppLockContext } from "./AppLockContext";
+import { useAdvanceProtectionContext } from "./AdvanceProtectionContext";
 
 // create context
 const AuthContext = createContext();
@@ -10,6 +11,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState('');
 
     const { checkLock } = useAppLockContext();
+    const { checkAdvanceProtection } = useAdvanceProtectionContext();
 
     // Function to check authentication status when app starts
     const checkAuth = async () => {
@@ -21,6 +23,7 @@ export const AuthProvider = ({ children }) => {
                 setIsAuthenticated(true);
                 setUser(phone);
                 checkLock();
+                checkAdvanceProtection();
             } else {
                 setIsAuthenticated(false);
                 setUser('');
@@ -58,8 +61,7 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         // AsyncStorage.clear().then(() => console.log("Cleared AsyncStorage!"));
         try {
-            await AsyncStorage.removeItem('authSafePay');
-            await AsyncStorage.removeItem('userSafePay');
+            await AsyncStorage.multiRemove(['authSafePay', 'userSafePay']);
             setIsAuthenticated(false);
             setUser('');
             console.log("User logged out!");
