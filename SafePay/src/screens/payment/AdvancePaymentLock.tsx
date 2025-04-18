@@ -13,7 +13,7 @@ import React from 'react';
 import {useAdvanceProtectionContext} from '../../context/AdvanceProtectionContext';
 import ReactNativeBiometrics from 'react-native-biometrics';
 
-const AdvancePaymentLock = () => {
+const AdvancePaymentLock = ({navigation}: {navigation: any}) => {
   const {
     isAdvanceProtection,
     enableAdvanceProtection,
@@ -38,7 +38,7 @@ const AdvancePaymentLock = () => {
   };
 
   const ProtectionOfSystem = async () => {
-    console.log("System's Protection");
+    console.log("System's Protection: ", isAdvanceProtection);
     if (
       isAdvanceProtection === 'AProtected' ||
       isAdvanceProtection === 'SProtected'
@@ -72,7 +72,27 @@ const AdvancePaymentLock = () => {
 
       const {available} = await rnBiometrics.isSensorAvailable();
       if (available) {
-        enableAdvanceProtection('SProtected');
+        Alert.alert(
+          'Enable Advance Payment Protection', // Title
+          'Are you sure you want to proceed?', // Message
+          [
+            {
+              text: 'Cancel',
+              onPress: () => {
+                console.log('Action canceled');
+                return;
+              },
+              style: 'cancel',
+            },
+            {
+              text: 'Confirm',
+              onPress: () => {
+                console.log('Action confirmed');
+                enableAdvanceProtection('SProtected');
+              },
+            },
+          ],
+        );
       } else {
         console.log('Biometrics not available. Redirecting to setup.');
         Alert.alert(
@@ -99,7 +119,56 @@ const AdvancePaymentLock = () => {
   };
 
   const ProtectionOfApp = () => {
-    Alert.alert("App's Protection", 'Coming Soon!');
+    // Alert.alert("App's Protection", 'Coming Soon!');
+    console.log("System's Protection: ", isAdvanceProtection);
+    if (
+      isAdvanceProtection === 'AProtected' ||
+      isAdvanceProtection === 'SProtected'
+    ) {
+      Alert.alert(
+        'Disable Advance Payment Protection', // Title
+        'Are you sure you want to proceed?', // Message
+        [
+          {
+            text: 'Cancel',
+            onPress: () => {
+              console.log('Action canceled');
+              return;
+            },
+            style: 'cancel',
+          },
+          {
+            text: 'OK',
+            onPress: () => {
+              console.log('Action confirmed');
+              disableAdvanceProtection();
+            },
+          },
+        ],
+      );
+    } else {
+      Alert.alert(
+        'Enable Advance Payment Protection', // Title
+        'Are you sure you want to proceed?', // Message
+        [
+          {
+            text: 'Cancel',
+            onPress: () => {
+              console.log('Action canceled');
+              return;
+            },
+            style: 'cancel',
+          },
+          {
+            text: 'Confirm',
+            onPress: () => {
+              console.log('Action confirmed');
+              navigation.navigate('MultiangleCapture');
+            },
+          },
+        ],
+      );
+    }
   };
 
   return (

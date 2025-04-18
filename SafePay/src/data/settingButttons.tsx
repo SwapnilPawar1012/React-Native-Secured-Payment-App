@@ -1,7 +1,9 @@
 import {Alert, Linking, NativeModules, Platform} from 'react-native';
 import ReactNativeBiometrics from 'react-native-biometrics';
+import RNFS from 'react-native-fs';
 import {useAuthContext} from '../context/AuthContext';
 import {useAppLockContext} from '../context/AppLockContext';
+import {useState} from 'react';
 
 const {isLocked, lock, unlock} = useAppLockContext();
 const {logout} = useAuthContext();
@@ -44,8 +46,29 @@ const handleAppLockToggle = async () => {
   }
 };
 
+const deleteAllPhotos = async () => {
+  try {
+    const files = await RNFS.readDir(RNFS.DocumentDirectoryPath);
+    const facePhotos = files.filter(file => file.name.startsWith('face_'));
+    const newfacePhotos = files.filter(file => file.name.startsWith('safepay_biometric/face_'));
+
+    for (const file of facePhotos) {
+      await RNFS.unlink(file.path);
+      console.log(`Deleted: ${file.path}`);
+    }
+    for (const file of newfacePhotos) {
+      await RNFS.unlink(file.path);
+      console.log(`Deleted: ${file.path}`);
+    }
+    console.log('All face photos deleted.');
+  } catch (err) {
+    console.error('Failed to delete photos', err);
+  }
+};
+
 const HandleLogout = (navigation: any) => {
   logout();
+  deleteAllPhotos();
   navigation.replace('GetOTP');
 };
 

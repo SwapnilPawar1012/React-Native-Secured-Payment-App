@@ -32,13 +32,16 @@ const AdvanceProtection = ({navigation}: {navigation: any}) => {
     }
   };
 
+  const checkAppAdvanceBiometric = async () => {
+    Alert.alert("App's Advance Payment Authentication", 'Coming Soon.');
+  };
+
   useEffect(() => {
     console.log('useEffect: ', isAdvanceProtection);
-    if (
-      isAdvanceProtection === 'AProtected' ||
-      isAdvanceProtection === 'SProtected'
-    ) {
+    if (isAdvanceProtection === 'SProtected') {
       checkAdvanceBiometric();
+    } else if (isAdvanceProtection === 'AProtected') {
+      checkAppAdvanceBiometric();
     } else {
       navigation.replace('PaymentPanel');
     }
