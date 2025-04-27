@@ -30,7 +30,7 @@ const VerifyOTP = ({navigation}: {navigation: any}) => {
       return;
     }
     try {
-      const response = await axios.post('http://10.0.2.2:5000/send-otp', {
+      const response = await axios.post('http://192.168.158.241:5000/api/auth/send-otp', {
         phoneNumber: phoneNumberGlobal,
       });
       console.log(response);
@@ -58,7 +58,7 @@ const VerifyOTP = ({navigation}: {navigation: any}) => {
     }
 
     try {
-      const response = await axios.post('http://10.0.2.2:5000/verify-otp', {
+      const response = await axios.post('http://192.168.158.241:5000/api/auth/verify-otp', {
         phoneNumber: phoneNumberGlobal,
         code,
       });
