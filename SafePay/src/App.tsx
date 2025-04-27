@@ -16,6 +16,7 @@ import Notifications from './screens/Notifications';
 import AdvancePaymentLock from './screens/payment/AdvancePaymentLock';
 import PaymentPanel from './screens/payment/PaymentPanel';
 import AdvanceProtection from './screens/payment/AdvanceProtection';
+import MultiangleCapture from './screens/MultiangleCapture';
 
 export type RootParamList = {
   Welcome: undefined;
@@ -28,6 +29,7 @@ export type RootParamList = {
   AdvancePaymentLock: undefined;
   AdvanceProtection: undefined;
   PaymentPanel: undefined;
+  MultiangleCapture: undefined;
   ComingSoon: undefined;
 };
 
@@ -60,7 +62,7 @@ const App = () => {
           isAuthenticated
             ? isLocked
               ? 'AppLock'
-              : 'Home' // Home AdvancePaymentLock
+              : 'Home' // Home AdvancePaymentLock MultiangleCapture
             : 'Welcome'
         }
         screenOptions={{
@@ -85,6 +87,7 @@ const App = () => {
           name="PaymentPanel"
           component={PaymentPanel}
         />
+        <Stack.Screen name="MultiangleCapture" component={MultiangleCapture} />
         <Stack.Screen name="ComingSoon" component={ComingSoon} />
       </Stack.Navigator>
     </NavigationContainer>
