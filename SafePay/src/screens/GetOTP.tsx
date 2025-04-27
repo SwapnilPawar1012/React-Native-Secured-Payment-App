@@ -27,8 +27,7 @@ const GetOTP = ({navigation}: {navigation: any}) => {
 
     try {
       // ipconfig: use 10.0.2.2 for Android Emulator and IPv4 Address for physical device
-      // http://10.0.2.2:8000/send-otp
-      const response = await axios.post('http://192.168.51.241:8000/api/send-otp/', {
+      const response = await axios.post('http://192.168.158.241:5000/api/auth/send-otp', {
         phoneNumber: phoneNumberGlobal,
       });
       console.log(response);
