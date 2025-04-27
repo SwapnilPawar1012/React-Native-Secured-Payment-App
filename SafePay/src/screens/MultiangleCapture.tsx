@@ -3,11 +3,11 @@ import React, {useEffect, useRef, useState} from 'react';
 import {Camera, useCameraDevice} from 'react-native-vision-camera';
 import RNFS from 'react-native-fs';
 import Loading from '../components/Loading';
-import { useAdvanceProtectionContext } from '../context/AdvanceProtectionContext';
+import {useAdvanceProtectionContext} from '../context/AdvanceProtectionContext';
 
 const MultiangleCapture = ({navigation}: {navigation: any}) => {
   const device = useCameraDevice('front');
-  const [photos, setPhotos] = useState<String[]>([]);
+  const [photos, setPhotos] = useState<string[]>([]); // Store the photos
   const camera = useRef<Camera>(null);
 
   const [capturing, setCapturing] = useState(false);
@@ -19,113 +19,89 @@ const MultiangleCapture = ({navigation}: {navigation: any}) => {
     'Look up',
     'Look down',
     'Try other angle',
+    'Look left',
+    'Look right',
   ];
   const [step, setStep] = useState(0);
 
-  const {
-    enableAdvanceProtection,
-  } = useAdvanceProtectionContext();
-
-  const loadFacePhotos = async () => {
-    try {
-      const files = await RNFS.readDir(RNFS.DocumentDirectoryPath);
-
-      const faceFiles = files
-        .filter(file => file.name.startsWith('face') && file.isFile())
-        .map(file => file.path); // Get only paths
-
-      setPhotos(faceFiles);
-      console.log('Loaded face photos:', faceFiles);
-    } catch (err) {
-      console.error('Error loading face photos:', err);
-    }
-  };
+  const {enableAdvanceProtection} = useAdvanceProtectionContext();
 
   useEffect(() => {
     Camera.requestCameraPermission().then(result => {
       console.log('Camera permission:', result);
     });
-    loadFacePhotos();
   }, []);
 
+  // Function to take a photo and add it to the photos array
   const takePhoto = async () => {
-    if (camera.current == null || photos.length >= 8 || capturing) return; // prevent excess
+    if (camera.current == null || photos.length >= 8 || capturing) return; // prevent excess photos
     console.log('Taking photo... ', camera.current);
     setCapturing(true); // prevent further taps
 
     const photo = await camera.current.takePhoto({});
     console.log('Photo taken: ', photo);
 
-    // Define target path in app's document directory
-    const newPath = `${RNFS.DocumentDirectoryPath}/face_${Date.now()}.jpg`;
-
     try {
-      await RNFS.moveFile(photo.path, newPath); // move photo
-      console.log('Photo saved to local:', newPath);
-      setPhotos(prev => [...prev, newPath]);
-
+      setPhotos(prev => [...prev, photo.path]); // Add new photo to state
       if (step < directions.length - 1) {
-        setStep(prev => prev + 1); // move to next prompt
+        setStep(prev => prev + 1); // Move to next prompt
       }
     } catch (err) {
       console.error('Failed to move photo to local storage', err);
     } finally {
-      setCapturing(false); // re-enable capture
+      setCapturing(false); // Re-enable capture
     }
   };
 
   const deleteAllPhotos = async () => {
     try {
-      const files = await RNFS.readDir(RNFS.DocumentDirectoryPath);
-      const facePhotos = files.filter(file => file.name.startsWith('face_'));
-      const newfacePhotos = files.filter(file =>
-        file.name.startsWith('safepay_biometric/face_'),
-      );
-
-      for (const file of facePhotos) {
-        await RNFS.unlink(file.path);
-        console.log(`Deleted: ${file.path}`);
+      for (let uri of photos) {
+        await RNFS.unlink(uri); // Delete each captured photo
       }
-      for (const file of newfacePhotos) {
-        await RNFS.unlink(file.path);
-        console.log(`Deleted: ${file.path}`);
-      }
-      setPhotos([]);
-      setStep(0);
-      console.log('All face photos deleted.');
-    } catch (err) {
-      console.error('Failed to delete photos', err);
+      setPhotos([]); // Clear state
+      console.log('All photos deleted');
+    } catch (error) {
+      console.error('Failed to delete photos:', error);
     }
   };
 
+  // Function to upload all photos to the backend
   const uploadPhotos = async () => {
-    const destinationDir = `${RNFS.DocumentDirectoryPath}/safepay_biometric`;
+    if (photos.length < 8) return;
+
+    // Prepare the photos for upload
+    const formData = new FormData();
+    photos.forEach((uri, idx) => {
+      formData.append('photos', {
+        uri: 'file://' + uri, // Ensure the correct path is used
+        type: 'image/jpeg', // Adjust based on the photo type
+        name: `photo_${idx + 1}.jpg`,
+      });
+    });
 
     try {
-      // Ensure destination directory exists
-      const dirExists = await RNFS.exists(destinationDir);
-      if (!dirExists) {
-        await RNFS.mkdir(destinationDir);
+      const response = await fetch('http://192.168.158.241:5000/api/auth/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        Alert.alert('Success', 'Photos uploaded successfully!');
+        console.log('Upload successful:', result);
+        enableAdvanceProtection('AProtected');
+        navigation.navigate('Home'); // Navigate to Home after upload
+      } else {
+        throw new Error(result.message || 'Upload failed');
       }
-
-      // Read current directory and filter photos
-      const files = await RNFS.readDir(RNFS.DocumentDirectoryPath);
-      const facePhotos = files.filter(
-        file => file.name.startsWith('face_') && file.isFile(),
-      );
-
-      for (const photo of facePhotos) {
-        const fileName = photo.name;
-        const newPath = `${destinationDir}/${fileName}`;
-        await RNFS.copyFile(photo.path, newPath);
-        console.log(`Copied: ${fileName} -> ${newPath}`);
-      }
-
-      console.log('Upload completed: all face photos copied.');
-      enableAdvanceProtection('AProtected');
-      navigation.navigate('Home'); // Navigate to Home after upload
-    } catch (err) {
-      console.error('Error uploading/copying photos:', err);
+    } catch (error) {
+      console.error('Error uploading photos:', error);
+      Alert.alert('Upload Error', 'Failed to upload photos');
+    } finally {
+      await deleteAllPhotos();
     }
   };
 
@@ -150,7 +126,7 @@ const MultiangleCapture = ({navigation}: {navigation: any}) => {
       <Button
         title="Capture Face"
         onPress={takePhoto}
-        disabled={photos.length > 7}
+        disabled={photos.length >= 8 || capturing} // Disable if 8 photos already captured
       />
       <View style={styles.photoContainer}>
         {photos.map((uri, idx) => (
@@ -162,12 +138,6 @@ const MultiangleCapture = ({navigation}: {navigation: any}) => {
         ))}
       </View>
       <View style={{flexDirection: 'row', gap: 25}}>
-        <Button
-          title="Retake Photos"
-          onPress={deleteAllPhotos}
-          color={'red'}
-          disabled={photos.length < 1}
-        />
         <Button
           title="Upload Photos"
           onPress={() => {
@@ -194,7 +164,7 @@ const MultiangleCapture = ({navigation}: {navigation: any}) => {
             );
           }}
           color={'green'}
-          disabled={photos.length < 7}
+          disabled={photos.length < 8} // Enable upload only if 8 photos are captured
         />
       </View>
     </View>
