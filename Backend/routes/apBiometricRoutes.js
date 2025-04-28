@@ -1,6 +1,6 @@
 const express = require('express');
 const multer = require('multer');
-const { uploadImages, deleteAllImages } = require('../controllers/apBiometricController');
+const { uploadImages, deleteAllImages, advanceBiometric } = require('../controllers/apBiometricController');
 
 const apRouter = express.Router();
 
@@ -12,6 +12,9 @@ const upload = multer({ storage });
 apRouter.post('/upload-images', upload.array('photos', 8), uploadImages);
 
 // DELETE /api/auth/delete-biometric
-apRouter.delete('/delete-images', deleteAllImages);
+apRouter.delete('/delete-images/:userId', deleteAllImages);
+
+// POST /api/auth/advance-biometric
+apRouter.post('/advance-biometric', upload.array('currentPhotos', 2), advanceBiometric)
 
 module.exports = apRouter;

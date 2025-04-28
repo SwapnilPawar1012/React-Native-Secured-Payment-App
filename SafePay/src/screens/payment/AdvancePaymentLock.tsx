@@ -13,8 +13,11 @@ import React from 'react';
 import {useAdvanceProtectionContext} from '../../context/AdvanceProtectionContext';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import axios from 'axios';
+import {useAuthContext} from '../../context/AuthContext';
 
 const AdvancePaymentLock = ({navigation}: {navigation: any}) => {
+  const {user} = useAuthContext();
+
   const {
     isAdvanceProtection,
     enableAdvanceProtection,
@@ -120,9 +123,10 @@ const AdvancePaymentLock = ({navigation}: {navigation: any}) => {
   };
 
   const deleteAllImagesFromServer = async () => {
+    let userId = user;
     try {
       const response = await axios.delete(
-        'http://192.168.154.241:5000/api/auth/delete-images',
+        `http://192.168.154.241:5000/api/auth/delete-images/${userId}`,
       );
 
       if (response.status === 200) {

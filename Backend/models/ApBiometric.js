@@ -1,13 +1,23 @@
 const mongoose = require('mongoose');
 
-const ApBiometricSchema = new mongoose.Schema({
+const imageSchema = new mongoose.Schema({
     data: Buffer,
     contentType: String,
     createdAt: {
-        type: Date,
-        default: Date.now,
-        // expires: 3600, // optional: delete automatically after 1 hour
+      type: Date,
+      default: Date.now
+    }
+  });
+  
+  const ApBiometricSchema = new mongoose.Schema({
+    userId: {
+      type: String,
+      required: true,
+      unique: true // optional: one set of images per user
     },
-});
-
-module.exports = mongoose.model('ApBiometric', ApBiometricSchema);
+    images: [imageSchema] // array of images
+  });
+  
+  const ApBiometric = mongoose.model('ApBiometric', ApBiometricSchema);
+  
+  module.exports = ApBiometric;

@@ -17,6 +17,7 @@ import AdvancePaymentLock from './screens/payment/AdvancePaymentLock';
 import PaymentPanel from './screens/payment/PaymentPanel';
 import AdvanceProtection from './screens/payment/AdvanceProtection';
 import MultiangleCapture from './screens/MultiangleCapture';
+import CaptureAndSendScreen from './screens/payment/CaptureAndSendScreen';
 
 export type RootParamList = {
   Welcome: undefined;
@@ -30,6 +31,7 @@ export type RootParamList = {
   AdvanceProtection: undefined;
   PaymentPanel: undefined;
   MultiangleCapture: undefined;
+  CaptureAndSendScreen: undefined;
   ComingSoon: undefined;
 };
 
@@ -88,6 +90,7 @@ const App = () => {
           component={PaymentPanel}
         />
         <Stack.Screen name="MultiangleCapture" component={MultiangleCapture} />
+        <Stack.Screen name="CaptureAndSendScreen" component={CaptureAndSendScreen} />
         <Stack.Screen name="ComingSoon" component={ComingSoon} />
       </Stack.Navigator>
     </NavigationContainer>

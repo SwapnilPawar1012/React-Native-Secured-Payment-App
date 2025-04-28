@@ -1,25 +1,24 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View, Text, StyleSheet, ActivityIndicator, Alert} from 'react-native';
-import {Camera, useCameraDevices} from 'react-native-vision-camera';
+import {View, Text, StyleSheet, Alert} from 'react-native';
+import {Camera, useCameraDevice} from 'react-native-vision-camera';
 import axios from 'axios';
 import RNFS from 'react-native-fs'; // Ensure RNFS is imported
 import ImageResizer from 'react-native-image-resizer';
-import Loading from './Loading';
+import Loading from '../../components/Loading';
+import {useAuthContext} from '../../context/AuthContext';
 
-const CaptureAndSendScreen = () => {
+const CaptureAndSendScreen = ({navigation}) => {
+  const {user} = useAuthContext();
+
   const camera = useRef(null);
-  const devices = useCameraDevices();
-  const device = devices.front; // Front camera
+  const device = useCameraDevice('front');
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [capturedPhotos, setCapturedPhotos] = useState([]);
 
   useEffect(() => {
-    (async () => {
-      const cameraPermission = await Camera.requestCameraPermission();
-      if (cameraPermission !== 'authorized') {
-        Alert.alert('Permission Denied', 'Camera access is required.');
-      }
-    })();
+    Camera.requestCameraPermission().then(result => {
+      console.log('Camera permission:', result);
+    });
   }, []);
 
   useEffect(() => {
@@ -84,19 +83,20 @@ const CaptureAndSendScreen = () => {
   };
 
   const sendPhotosToBackend = async (photoPath1, photoPath2) => {
-    try {
-      const formData = new FormData();
-      formData.append('photos', {
-        uri: 'file://' + photoPath1,
-        type: 'image/jpeg',
-        name: 'photo1.jpg',
-      });
-      formData.append('photos', {
-        uri: 'file://' + photoPath2,
-        type: 'image/jpeg',
-        name: 'photo2.jpg',
-      });
+    const formData = new FormData();
+    formData.append('currentPhotos', {
+      uri: 'file://' + photoPath1,
+      type: 'image/jpeg',
+      name: 'photo1.jpg',
+    });
+    formData.append('currentPhotos', {
+      uri: 'file://' + photoPath2,
+      type: 'image/jpeg',
+      name: 'photo2.jpg',
+    });
+    formData.append('userId', user);
 
+    try {
       const response = await axios.post(
         'http://192.168.154.241:5000/api/auth/advance-biometric',
         formData,
@@ -107,19 +107,18 @@ const CaptureAndSendScreen = () => {
         },
       );
 
-      const result = response.data;
       if (response.status === 200) {
-        Alert.alert('Success', 'Photos uploaded successfully!');
-
-        if (result && result.message) {
-          console.log('Upload successful:', result.message);
-          console.log('Uploaded file count:', result.files.length);
-        } else {
-          console.log('Upload successful but no message received.');
+        if (response.data.success) {
+          navigation.replace('PaymentPanel');
+          Alert.alert(response.data.message || 'Face Matched');
+        } else if (response.data.success === false) {
+          Alert.alert(
+            response.data.message || 'Face Not Matched',
+            'Please try again.',
+          );
         }
-        return true;
       } else {
-        console.error(result.message || 'Upload failed');
+        console.error(result.message || 'Face Not Matched');
       }
     } catch (error) {
       console.error('Error sending photos to backend:', error);
@@ -129,7 +128,14 @@ const CaptureAndSendScreen = () => {
     }
   };
 
-  if (device == null) return <Loading />;
+  if (device == null) {
+    return (
+      <View style={styles.container}>
+        <Loading />
+        <Text>Loading camera</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -140,9 +146,10 @@ const CaptureAndSendScreen = () => {
         isActive={true}
         photo={true}
         onInitialized={() => setIsCameraReady(true)}
+        zoom={1.8}
       />
       <View style={styles.overlay}>
-        <Text style={styles.text}>Capturing Photos...</Text>
+        <Text style={styles.text}>Face Detecting...</Text>
       </View>
     </View>
   );

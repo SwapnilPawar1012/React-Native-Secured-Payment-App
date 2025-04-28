@@ -1,23 +1,41 @@
-const ApBiometric = require('../models/ApBiometric'); // Import model
+const axios = require('axios');
+const flatted = require('flatted');
+const ApBiometric = require('../models/ApBiometric');
 
 const uploadImages = async (req, res) => {
   console.log('Uploading images, Files received:', req.files); // Log the received files
   try {
+    const userId = req.body.userId;
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID is required, Please try again!' })
+    }
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: 'No files uploaded' });
     }
 
-    const savedImages = await Promise.all(
-      req.files.map(file => {
-        const newImage = new ApBiometric({
-          data: file.buffer,
-          contentType: file.mimetype,
-        });
-        return newImage.save();
-      })
-    );
+    // Convert uploaded files into images array
+    const images = req.files.map(file => ({
+      data: file.buffer,
+      contentType: file.mimetype
+    }));
 
-    res.status(200).json({ message: 'Images uploaded successfully', files: savedImages });
+    // Find if user already exists
+    let user = await ApBiometric.findOne({ userId });
+
+    if (user) {
+      // If user exists, push new images
+      user.images.push(...images);
+      await user.save();
+    } else {
+      // If not, create a new user document
+      user = new ApBiometric({
+        userId,
+        images
+      });
+      await user.save();
+    }
+
+    res.status(200).json({ message: 'Images uploaded successfully', data: user });
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ message: 'Server error during upload' });
@@ -25,9 +43,15 @@ const uploadImages = async (req, res) => {
 };
 
 const deleteAllImages = async (req, res) => {
-  console.log('Deleting all images');
+  const { userId } = req.params;
+  console.log('Deleting all images for userId:', userId);
+
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is required for deletion' });
+  }
+
   try {
-    const result = await ApBiometric.deleteMany({}); // delete everything
+    const result = await ApBiometric.deleteMany({ userId }); // delete everything
 
     res.status(200).json({
       message: 'All images deleted successfully',
@@ -39,7 +63,67 @@ const deleteAllImages = async (req, res) => {
   }
 };
 
-module.exports = { uploadImages, deleteAllImages };
+const advanceBiometric = async (req, res) => {
+  console.log('FILES RECEIVED:', req.files);
+  console.log('BODY RECEIVED:', req.body);
+
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
+    // Get the paths of uploaded current photos
+    const currentPhotos = req.files.map(file => file.buffer.toString('base64')); // Convert buffer to base64 string
+
+    if (currentPhotos.length !== 2) {
+      return res.status(400).json({ error: 'Exactly 2 current photos required' });
+    }
+
+    // Fetch 8 stored images from MongoDB
+    const user = await ApBiometric.findOne({ userId });
+
+    if (!user || user.images.length < 8) {
+      return res.status(404).json({ error: 'Stored images not found or less than 8' });
+    }
+
+    const storedImages = user.images.slice(0, 8); // Get first 8 stored images
+
+    // Convert stored images from MongoDB to base64
+    const storedImagesBase64 = storedImages.map(imgDoc => imgDoc.data.toString('base64'));
+
+    // Prepare the data to send to Python API
+    const requestData = {
+      images: [...storedImagesBase64, ...currentPhotos], // Combine stored and current images
+    };
+
+    // Call the Python API
+    const pythonApiUrl = 'http://192.168.154.241:5001/detect-faces'; // Replace with your Python API URL
+    const response = await axios.post(pythonApiUrl, requestData, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    // Extract results from Python API response
+    const results = response.data.results;
+
+    console.log('Results from Python API: ', results);
+
+    // Check if any current photo matched
+    const anyMatchFound = results.some(result => result.match_found_with_stored === true);
+
+    if (anyMatchFound) {
+      return res.json({ success: true, message: 'Face matched successfully.' });
+    } else {
+      return res.json({ success: false, message: 'Face did not match.' });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+module.exports = { uploadImages, deleteAllImages, advanceBiometric };
 
 
 

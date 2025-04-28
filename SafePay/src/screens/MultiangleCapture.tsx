@@ -6,8 +6,11 @@ import Loading from '../components/Loading';
 import {useAdvanceProtectionContext} from '../context/AdvanceProtectionContext';
 import ImageResizer from 'react-native-image-resizer';
 import axios from 'axios';
+import {useAuthContext} from '../context/AuthContext';
 
 const MultiangleCapture = ({navigation}: {navigation: any}) => {
+  const {user} = useAuthContext();
+
   const device = useCameraDevice('front');
   const [photos, setPhotos] = useState<string[]>([]); // Store the photos
   const camera = useRef<Camera>(null);
@@ -92,6 +95,9 @@ const MultiangleCapture = ({navigation}: {navigation: any}) => {
     });
 
     try {
+      // Also append the phone number
+      formData.append('userId', user);
+
       const response = await axios.post(
         'http://192.168.154.241:5000/api/auth/upload-images',
         formData,
@@ -108,7 +114,6 @@ const MultiangleCapture = ({navigation}: {navigation: any}) => {
 
         if (result && result.message) {
           console.log('Upload successful:', result.message);
-          console.log('Uploaded file count:', result.files.length);
         } else {
           console.log('Upload successful but no message received.');
         }
@@ -122,17 +127,23 @@ const MultiangleCapture = ({navigation}: {navigation: any}) => {
       console.error('Error uploading photos:', error);
       Alert.alert('Upload Error', 'Failed to upload photos');
     } finally {
-      await deleteAllPhotos();
+      try {
+        await deleteAllPhotos();
+        console.log('All photos deleted from local storage');
+      } catch (cleanupError) {
+        console.error('Error cleaning up local photos:', cleanupError);
+      }
     }
   };
 
-  if (device == null)
+  if (device == null) {
     return (
       <View style={styles.container}>
         <Loading />
         <Text>Loading camera</Text>
       </View>
     );
+  }
 
   return (
     <View style={styles.container}>
