@@ -12,6 +12,7 @@ import {
 import React from 'react';
 import {useAdvanceProtectionContext} from '../../context/AdvanceProtectionContext';
 import ReactNativeBiometrics from 'react-native-biometrics';
+import axios from 'axios';
 
 const AdvancePaymentLock = ({navigation}: {navigation: any}) => {
   const {
@@ -118,8 +119,33 @@ const AdvancePaymentLock = ({navigation}: {navigation: any}) => {
     }
   };
 
+  const deleteAllImagesFromServer = async () => {
+    try {
+      const response = await axios.delete(
+        'http://192.168.154.241:5000/api/auth/delete-images',
+      );
+
+      if (response.status === 200) {
+        console.log('Images deleted successfully:', response.data.deletedCount);
+        Alert.alert('Success', 'All images deleted successfully');
+        disableAdvanceProtection();
+      } else {
+        console.error('Deletion failed:', response.data.message);
+        Alert.alert(
+          'Disable Failed',
+          response.data.message || 'Failed to delete images',
+        );
+      }
+    } catch (error: any) {
+      console.error('Error deleting images:', error);
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Server error while deleting images',
+      );
+    }
+  };
+
   const ProtectionOfApp = () => {
-    // Alert.alert("App's Protection", 'Coming Soon!');
     console.log("System's Protection: ", isAdvanceProtection);
     if (
       isAdvanceProtection === 'AProtected' ||
@@ -139,35 +165,15 @@ const AdvancePaymentLock = ({navigation}: {navigation: any}) => {
           },
           {
             text: 'OK',
-            onPress: () => {
+            onPress: async () => {
               console.log('Action confirmed');
-              disableAdvanceProtection();
+              await deleteAllImagesFromServer();
             },
           },
         ],
       );
     } else {
-      Alert.alert(
-        'Enable Advance Payment Protection', // Title
-        'Are you sure you want to proceed?', // Message
-        [
-          {
-            text: 'Cancel',
-            onPress: () => {
-              console.log('Action canceled');
-              return;
-            },
-            style: 'cancel',
-          },
-          {
-            text: 'Confirm',
-            onPress: () => {
-              console.log('Action confirmed');
-              navigation.navigate('MultiangleCapture');
-            },
-          },
-        ],
-      );
+      navigation.navigate('MultiangleCapture');
     }
   };
 
@@ -188,7 +194,9 @@ const AdvancePaymentLock = ({navigation}: {navigation: any}) => {
         ) : isAdvanceProtection === 'AProtected' ? (
           <Pressable onPress={ProtectionOfApp}>
             <View style={styles.button}>
-              <Text style={styles.buttonText}>SafePay App's method</Text>
+              <Text style={styles.buttonText}>
+                Disable SafePay App's method
+              </Text>
             </View>
           </Pressable>
         ) : (
@@ -230,7 +238,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#318CE7',
     marginVertical: 15,
     paddingVertical: 14,
-    paddingHorizontal: 80,
+    paddingHorizontal: 50,
     borderRadius: 8,
   },
   buttonText: {
@@ -241,3 +249,26 @@ const styles = StyleSheet.create({
 });
 
 export default AdvancePaymentLock;
+
+/**
+      Alert.alert(
+        'Enable Advance Payment Protection', // Title
+        'Are you sure you want to proceed?', // Message
+        [
+          {
+            text: 'Cancel',
+            onPress: () => {
+              console.log('Action canceled');
+              return;
+            },
+            style: 'cancel',
+          },
+          {
+            text: 'Confirm',
+            onPress: () => {
+              console.log('Action confirmed');
+              navigation.navigate('MultiangleCapture');
+            },
+          },
+        ],
+      ); */
