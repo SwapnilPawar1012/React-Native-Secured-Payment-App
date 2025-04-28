@@ -1,10 +1,13 @@
 import {Alert, Button, StyleSheet, Text, View} from 'react-native';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useAdvanceProtectionContext} from '../../context/AdvanceProtectionContext';
 import ReactNativeBiometrics from 'react-native-biometrics';
+import Loading from '../../components/Loading';
 
 const AdvanceProtection = ({navigation}: {navigation: any}) => {
   const {isAdvanceProtection} = useAdvanceProtectionContext();
+
+  const [appAdvanceProtection, setAppAdvanceProtection] = useState(false);
 
   const checkAdvanceBiometric = async () => {
     const rnBiometrics = new ReactNativeBiometrics({
@@ -41,11 +44,15 @@ const AdvanceProtection = ({navigation}: {navigation: any}) => {
     if (isAdvanceProtection === 'SProtected') {
       checkAdvanceBiometric();
     } else if (isAdvanceProtection === 'AProtected') {
-      checkAppAdvanceBiometric();
+      setAppAdvanceProtection(true);
     } else {
       navigation.replace('PaymentPanel');
     }
   }, []);
+
+  if (!appAdvanceProtection) {
+    return <Loading />;
+  }
 
   return (
     <View style={styles.container}>
