@@ -5,6 +5,7 @@ import RNFS from 'react-native-fs';
 import Loading from '../components/Loading';
 import {useAdvanceProtectionContext} from '../context/AdvanceProtectionContext';
 import ImageResizer from 'react-native-image-resizer';
+import axios from 'axios';
 
 const MultiangleCapture = ({navigation}: {navigation: any}) => {
   const device = useCameraDevice('front');
@@ -91,16 +92,18 @@ const MultiangleCapture = ({navigation}: {navigation: any}) => {
     });
 
     try {
-      const response = await fetch(
+      const response = await axios.post(
         'http://192.168.154.241:5000/api/auth/upload-images',
+        formData,
         {
-          method: 'POST',
-          body: formData,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         },
       );
 
-      const result = await response.json();
-      if (response.ok) {
+      const result = response.data;
+      if (response.status === 200) {
         Alert.alert('Success', 'Photos uploaded successfully!');
 
         if (result && result.message) {
@@ -113,7 +116,7 @@ const MultiangleCapture = ({navigation}: {navigation: any}) => {
         enableAdvanceProtection('AProtected');
         navigation.navigate('Home');
       } else {
-        throw new Error(result.message || 'Upload failed');
+        console.error(result.message || 'Upload failed');
       }
     } catch (error) {
       console.error('Error uploading photos:', error);
