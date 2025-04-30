@@ -15,9 +15,9 @@ import ComingSoon from './components/ComingSoon';
 import Notifications from './screens/Notifications';
 import AdvancePaymentLock from './screens/payment/AdvancePaymentLock';
 import PaymentPanel from './screens/payment/PaymentPanel';
-import AdvanceProtection from './screens/payment/AdvanceProtection';
-import MultiangleCapture from './screens/MultiangleCapture';
-import CaptureAndSendScreen from './screens/payment/CaptureAndSendScreen';
+import FaceDetection from './screens/FaceDetection';
+import FaceRecognition from './screens/payment/FaceRecognition';
+import AdvanceBiometric from './screens/payment/AdvanceBiometric';
 
 export type RootParamList = {
   Welcome: undefined;
@@ -28,10 +28,10 @@ export type RootParamList = {
   Settings: undefined;
   Notifications: undefined;
   AdvancePaymentLock: undefined;
-  AdvanceProtection: undefined;
+  AdvanceBiometric: undefined;
   PaymentPanel: undefined;
-  MultiangleCapture: undefined;
-  CaptureAndSendScreen: undefined;
+  FaceDetection: undefined;
+  FaceRecognition: undefined;
   ComingSoon: undefined;
 };
 
@@ -82,15 +82,15 @@ const App = () => {
           component={AdvancePaymentLock}
         />
         <Stack.Screen
-          name="AdvanceProtection"
-          component={AdvanceProtection}
+          name="AdvanceBiometric"
+          component={AdvanceBiometric}
         />
         <Stack.Screen
           name="PaymentPanel"
           component={PaymentPanel}
         />
-        <Stack.Screen name="MultiangleCapture" component={MultiangleCapture} />
-        <Stack.Screen name="CaptureAndSendScreen" component={CaptureAndSendScreen} />
+        <Stack.Screen name="FaceDetection" component={FaceDetection} />
+        <Stack.Screen name="FaceRecognition" component={FaceRecognition} />
         <Stack.Screen name="ComingSoon" component={ComingSoon} />
       </Stack.Navigator>
     </NavigationContainer>

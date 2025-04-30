@@ -131,7 +131,7 @@ const AdvancePaymentLock = ({navigation}: {navigation: any}) => {
 
       if (response.status === 200) {
         console.log('Images deleted successfully:', response.data.deletedCount);
-        Alert.alert('Success', 'All images deleted successfully');
+        Alert.alert('Success', 'Advance Payment Protection Disabled!');
         disableAdvanceProtection();
       } else {
         console.error('Deletion failed:', response.data.message);
@@ -177,7 +177,7 @@ const AdvancePaymentLock = ({navigation}: {navigation: any}) => {
         ],
       );
     } else {
-      navigation.navigate('MultiangleCapture');
+      navigation.navigate('FaceDetection');
     }
   };
 
@@ -253,26 +253,3 @@ const styles = StyleSheet.create({
 });
 
 export default AdvancePaymentLock;
-
-/**
-      Alert.alert(
-        'Enable Advance Payment Protection', // Title
-        'Are you sure you want to proceed?', // Message
-        [
-          {
-            text: 'Cancel',
-            onPress: () => {
-              console.log('Action canceled');
-              return;
-            },
-            style: 'cancel',
-          },
-          {
-            text: 'Confirm',
-            onPress: () => {
-              console.log('Action confirmed');
-              navigation.navigate('MultiangleCapture');
-            },
-          },
-        ],
-      ); */

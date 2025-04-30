@@ -3,7 +3,7 @@ import React, {useEffect} from 'react';
 import {useAdvanceProtectionContext} from '../../context/AdvanceProtectionContext';
 import ReactNativeBiometrics from 'react-native-biometrics';
 
-const AdvanceProtection = ({navigation}: {navigation: any}) => {
+const AdvanceBiometric = ({navigation}: {navigation: any}) => {
   const {isAdvanceProtection} = useAdvanceProtectionContext();
 
   const checkAdvanceBiometric = async () => {
@@ -37,7 +37,7 @@ const AdvanceProtection = ({navigation}: {navigation: any}) => {
     if (isAdvanceProtection === 'SProtected') {
       checkAdvanceBiometric();
     } else if (isAdvanceProtection === 'AProtected') {
-      navigation.replace('CaptureAndSendScreen');
+      navigation.replace('FaceRecognition');
     } else {
       navigation.replace('PaymentPanel');
     }
@@ -69,4 +69,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AdvanceProtection;
+export default AdvanceBiometric;

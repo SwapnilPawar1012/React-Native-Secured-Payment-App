@@ -5,7 +5,7 @@ export const paymentMethods = (navigation: any) => [
     name: require('../assets/payment/qr-code.png'),
     title: 'Scan any QR code',
     bgColor: '#d7bde2',
-    press: () => navigation.navigate('AdvanceProtection'),
+    press: () => navigation.navigate('AdvanceBiometric'),
   },
   {
     id: 2,
@@ -13,7 +13,7 @@ export const paymentMethods = (navigation: any) => [
     name: 'address-book',
     title: 'Pay contacts',
     bgColor: '#aed6f1',
-    press: () => navigation.navigate('ComingSoon'),
+    press: () => navigation.navigate('AdvanceBiometric'),
   },
   {
     id: 3,
@@ -21,7 +21,7 @@ export const paymentMethods = (navigation: any) => [
     name: require('../assets/payment/pay-phone.png'),
     title: 'Pay phone number',
     bgColor: '#a3e4d7',
-    press: () => navigation.navigate('AdvanceProtection'),
+    press: () => navigation.navigate('AdvanceBiometric'),
   },
   {
     id: 4,
@@ -29,7 +29,7 @@ export const paymentMethods = (navigation: any) => [
     name: 'at',
     title: 'Pay UPI ID or number',
     bgColor: '#d5dbdb',
-    press: () => navigation.navigate('AdvanceProtection'),
+    press: () => navigation.navigate('AdvanceBiometric'),
   },
   {
     id: 5,
@@ -53,6 +53,6 @@ export const paymentMethods = (navigation: any) => [
     name: 'university',
     title: 'Bank transfer',
     bgColor: '#f9e79f',
-    press: () => navigation.navigate('AdvanceProtection'),
+    press: () => navigation.navigate('AdvanceBiometric'),
   },
 ];

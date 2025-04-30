@@ -3,7 +3,7 @@ const flatted = require('flatted');
 const ApBiometric = require('../models/ApBiometric');
 
 const uploadImages = async (req, res) => {
-  console.log('Uploading images, Files received:', req.files); // Log the received files
+  console.log('Uploading images, Files received:', req.files);
   try {
     const userId = req.body.userId;
     if (!userId) {
@@ -71,24 +71,24 @@ const advanceBiometric = async (req, res) => {
     const { userId } = req.body;
 
     if (!userId) {
-      return res.status(400).json({ error: 'userId is required' });
+      return res.status(400).json({ error: 'Backend: userId is required' });
     }
 
     // Get the paths of uploaded current photos
     const currentPhotos = req.files.map(file => file.buffer.toString('base64')); // Convert buffer to base64 string
 
-    if (currentPhotos.length !== 2) {
-      return res.status(400).json({ error: 'Exactly 2 current photos required' });
+    if (currentPhotos.length !== 4) {
+      return res.status(400).json({ error: 'Backend: Exactly 4 current photos required.' });
     }
 
     // Fetch 8 stored images from MongoDB
     const user = await ApBiometric.findOne({ userId });
 
-    if (!user || user.images.length < 8) {
-      return res.status(404).json({ error: 'Stored images not found or less than 8' });
+    if (!user || user.images.length < 20) {
+      return res.status(404).json({ error: 'Backend: At least 20 stored images required' });
     }
 
-    const storedImages = user.images.slice(0, 8); // Get first 8 stored images
+    const storedImages = user.images.slice(0, 20);
 
     // Convert stored images from MongoDB to base64
     const storedImagesBase64 = storedImages.map(imgDoc => imgDoc.data.toString('base64'));
@@ -99,27 +99,36 @@ const advanceBiometric = async (req, res) => {
     };
 
     // Call the Python API
-    const pythonApiUrl = 'http://192.168.154.241:5001/detect-faces'; // Replace with your Python API URL
+    const pythonApiUrl = 'http://192.168.154.241:5001/detect-faces'; // Python API URL
     const response = await axios.post(pythonApiUrl, requestData, {
       headers: { 'Content-Type': 'application/json' },
+      validateStatus: function (status) {
+        return status >= 200 && status < 500; // Accept all 2xx–4xx responses (exclude 5xx)
+      }
     });
 
-    // Extract results from Python API response
-    const results = response.data.results;
+    const data = response.data;
+    console.log('Python API response data: ', response.data)
+    if (response.status === 400 || data.error) {
+      return res.status(400).json({
+        message: data.message || 'Face detection failed.',
+      });
+    }
 
-    console.log('Results from Python API: ', results);
+    // Extract results from Python response
+    const results = data.results;
 
     // Check if any current photo matched
     const anyMatchFound = results.some(result => result.match_found_with_stored === true);
 
     if (anyMatchFound) {
-      return res.json({ success: true, message: 'Face matched successfully.' });
+      return res.json({ success: true, message: 'Backend: Face matched successfully.' });
     } else {
-      return res.json({ success: false, message: 'Face did not match.' });
+      return res.json({ success: false, message: 'Backend: Face did not match.' });
     }
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Backend: Internal Server Error' });
   }
 };
 

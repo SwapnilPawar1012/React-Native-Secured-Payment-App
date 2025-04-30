@@ -4,17 +4,19 @@ const { uploadImages, deleteAllImages, advanceBiometric } = require('../controll
 
 const apRouter = express.Router();
 
-// Setup multer
-const storage = multer.memoryStorage(); // Store files in memory (or use diskStorage if you want)
+// SETUP MULTER
+// Store files in memory (or use diskStorage if needed)
+const storage = multer.memoryStorage(); 
 const upload = multer({ storage });
 
 // POST /api/auth/upload-images
-apRouter.post('/upload-images', upload.array('photos', 8), uploadImages);
+apRouter.post('/upload-images', upload.array('photos', 20), uploadImages);
 
 // DELETE /api/auth/delete-biometric
 apRouter.delete('/delete-images/:userId', deleteAllImages);
 
 // POST /api/auth/advance-biometric
-apRouter.post('/advance-biometric', upload.array('currentPhotos', 2), advanceBiometric)
+apRouter.post('/advance-biometric', upload.array('currentPhotos', 4), advanceBiometric)
+// apRouter.post('/advance-biometric', upload.array('currentPhotos'), advanceBiometric) // API with no limits
 
 module.exports = apRouter;
