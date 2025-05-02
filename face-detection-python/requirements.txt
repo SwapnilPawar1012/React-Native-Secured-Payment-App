@@ -1,4 +1,7 @@
-Flask
-opencv-python
+flask
+deepface
 numpy
-flask-cors
+opencv-python
+tensorflow
+Pillow
+gunicorn
